@@ -5,12 +5,13 @@ import HistoryService from '../../service/historyService.js';
 import WeatherService from '../../service/weatherService.js';
 
 // TODO: POST Request with city name to retrieve weather data
-router.post('/', async (req: Request, res: Response) => {
+router.post('/:city', async (req: Request, res: Response) => {
   // TODO: GET weather data from city name
   // TODO: save city to search history
   try {
-    const cityName = req.body.city;
+    const cityName = req.params.city;
     const weather = await WeatherService.getWeatherForCity(cityName);
+    await HistoryService.addCity(cityName);
     res.json(weather);
   } catch (error) {
     console.error(error);
@@ -34,7 +35,7 @@ router.delete('/history/:id', async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     await HistoryService.removeCity(id);
-    res.sendStatus(204);
+    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     res.status(500).json(error);
