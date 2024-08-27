@@ -19,7 +19,7 @@ class HistoryService {
   }
   // TODO: Define a write method that writes the updated cities array to the searchHistory.json file
   private async write(cities: City[]) {
-    await fs.writeFile('db/searchHistory.json', JSON.stringify(cities, null, 2));
+    await await fs.writeFile('db/searchHistory.json', JSON.stringify(cities, null, 2));
   }
   // TODO: Define a getCities method that reads the cities from the searchHistory.json file and returns them as an array of City objects
   async getCities(): Promise<City[]> {

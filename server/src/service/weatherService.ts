@@ -18,17 +18,17 @@ class Weather {
   date: string;
   icon: string;
   iconDescription: string;
-  temperature: number;
+  tempF: number;
   windSpeed: number;
   humidity: number;
   
 
-  constructor(city: string, date: string, icon: string, iconDescription: string, temperature: number, windSpeed: number, humidity: number) {
+  constructor(city: string, date: string, icon: string, iconDescription: string, tempF: number, windSpeed: number, humidity: number) {
     this.city = city;
     this.date = date;
     this.icon = icon;
     this.iconDescription = iconDescription;
-    this.temperature = temperature;
+    this.tempF = tempF;
     this.windSpeed = windSpeed;
     this.humidity = humidity;
   }
@@ -56,7 +56,6 @@ class WeatherService {
 
   private async fetchLocationData(query: string): Promise<any> {
     this.cityName = query;
-    console.log(`Fetching location data with query: ${query}`);
     const response = await fetch(query);
     if (!response.ok) {
       console.error(`Failed to fetch location data: ${response.statusText}`);
@@ -107,20 +106,24 @@ class WeatherService {
       console.error(`Failed to fetch weather data: ${response.statusText}`);
       throw new Error('Failed to fetch weather data');
     }
-    return await response.json();
+    const data = await response.json();
+    return data;
   }
-
   // TODO: Build parseCurrentWeather method
   // private parseCurrentWeather(response: any) {}
   private parseCurrentWeather(response: any): Weather {
+    if (!response || !response.list || !response.list[0] || !response.list[0].weather || !response.list[0].weather[0]) {
+      throw new Error('Invalid weather data response');
+    }
+    const weatherData = response.list[0].weather[0];
     return {
-      city: this.cityName || '', // Ensure city is included
-      date: new Date().toISOString(), // Ensure date is included
-      icon: response.current.weather[0].icon,
-      iconDescription: response.current.weather[0].description,
-      temperature: response.current.temp,
-      windSpeed: response.current.wind_speed,
-      humidity: response.current.humidity,
+      city: response.city.name,
+      date: response.list[0].dt_txt,
+      icon: weatherData.icon,
+      iconDescription: weatherData.description,
+      tempF: response.list[0].main.temp,
+      windSpeed: response.list[0].wind.speed,
+      humidity: response.list[0].main.humidity,
     };
   }
 
@@ -128,21 +131,18 @@ class WeatherService {
   // private buildForecastArray(currentWeather: Weather, weatherData: any[]) {}
   private buildForecastArray(weatherData: any): Weather[] {
     const currentWeather = this.parseCurrentWeather(weatherData);
-    const forecastArray = [currentWeather];
-    for (let i = 1; i < 6; i++) {
-      const forecast = weatherData.daily[i];
-      const weather = new Weather(
-        this.cityName || '',
-        new Date(forecast.dt * 1000).toISOString(),
-        forecast.weather[0].icon,
-        forecast.weather[0].description,
-        forecast.temp.day,
-        forecast.wind_speed,
-        forecast.humidity
-      );
-      forecastArray.push(weather);
-    }
-    return forecastArray;
+    const forecast = weatherData.list.slice(1, 6).map((data: any) => {
+      return {
+        city: weatherData.city.name,
+        date: data.dt_txt,
+        icon: data.weather[0].icon,
+        iconDescription: data.weather[0].description,
+        tempF: data.main.temp,
+        windSpeed: data.wind.speed,
+        humidity: data.main.humidity,
+      };
+    });
+    return [currentWeather, ...forecast];
   }
 
     // TODO: Complete getWeatherForCity method
