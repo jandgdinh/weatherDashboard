@@ -131,7 +131,20 @@ class WeatherService {
   // private buildForecastArray(currentWeather: Weather, weatherData: any[]) {}
   private buildForecastArray(weatherData: any): Weather[] {
     const currentWeather = this.parseCurrentWeather(weatherData);
-    const forecast = weatherData.list.slice(1, 6).map((data: any) => {
+  
+    // Filter the list to get one forecast per day (e.g., at noon)
+    const dailyForecasts = weatherData.list.filter((entry: any) => {
+      const date = new Date(entry.dt_txt);
+      return date.getHours() === 12; // Select forecasts at noon
+    });
+  
+    // Ensure we have at least 5 daily forecasts
+    if (dailyForecasts.length < 5) {
+      console.error('Insufficient daily data provided to buildForecastArray');
+      return [];
+    }
+  
+    const forecast = dailyForecasts.slice(0, 5).map((data: any) => {
       return {
         city: weatherData.city.name,
         date: data.dt_txt,
@@ -142,6 +155,7 @@ class WeatherService {
         humidity: data.main.humidity,
       };
     });
+  
     return [currentWeather, ...forecast];
   }
 
