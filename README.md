@@ -6,6 +6,9 @@
   ## Description
   This application will give the user a weather dashboard for multiple cities.
 
+  ## Deployed Website
+  https://weatherdashboard-zm0v.onrender.com/
+
   ## Table of Contents
   - [Installation](#installation)
   - [Usage](#usage)
@@ -26,9 +29,6 @@
 
   ## Authors
   Myself
-
-  ## Tests
-  Test whether api is working or not
 
   ## Questions
   If you have any questions, please open an issue or contact me directly at jandgdinh@gmail.com. You can find more of my work at https://github.com/jandgdinh
